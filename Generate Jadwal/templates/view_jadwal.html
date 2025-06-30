@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Lihat Jadwal Kuliah{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Daftar Jadwal Kuliah</h4>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3 align-items-end">
+            <div class="col-md-8">
+                <form method="GET" action="{{ url_for('halaman_jadwal') }}" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="filter_by" class="form-label">Filter Berdasarkan:</label>
+                        <select name="filter_by" id="filter_by" class="form-select">
+                            <option value="Hari" {% if filter_by == 'Hari' %}selected{% endif %}>Hari</option>
+                            <option value="Ruangan" {% if filter_by == 'Ruangan' %}selected{% endif %}>Ruangan</option>
+                            <option value="Kelas" {% if filter_by == 'Kelas' %}selected{% endif %}>Kelas</option>
+                            <option value="Dosen" {% if filter_by == 'Dosen' %}selected{% endif %}>Dosen</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="filter_value" class="form-label">Kata Kunci:</label>
+                        <input type="text" name="filter_value" id="filter_value" class="form-control" value="{{ filter_value or '' }}">
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Cari</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-4 d-flex align-items-end justify-content-end mt-3 mt-md-0">
+                <div class="btn-group">
+                    <a href="{{ url_for('download_excel', filter_by=filter_by, filter_value=filter_value) }}" class="btn btn-outline-primary me-2">Unduh Excel</a>
+                    <form action="{{ url_for('delete_all_schedules') }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus SEMUA jadwal? Aksi ini tidak dapat dibatalkan.');">
+                        <button type="submit" class="btn btn-danger">Hapus Semua</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        {% for col in header %}
+                            <th>{{ col }}</th>
+                        {% endfor %}
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if jadwal_list %}
+                        {% for jadwal in jadwal_list %}
+                        <tr>
+                            <td>{{ jadwal.id }}</td>
+                            <td>{{ jadwal.nama_dosen }}</td>
+                            <td>{{ jadwal.mata_kuliah }}</td>
+                            <td>{{ jadwal.sks }}</td>
+                            <td>{{ jadwal.kelas }}</td>
+                            <td>{{ jadwal.hari }}</td>
+                            <td>{{ jadwal.jam_mulai }}</td>
+                            <td>{{ jadwal.jam_selesai }}</td>
+                            <td>{{ jadwal.gedung }}</td>
+                            <td>{{ jadwal.lantai }}</td>
+                            <td>{{ jadwal.ruangan }}</td>
+                            <td>{{ jadwal.tipe_kelas }}</td>
+                            <td>
+                                <form action="{{ url_for('delete_jadwal', jadwal_id=jadwal.id) }}" method="POST" onsubmit="return confirm('Hapus jadwal ini?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="{{ header|length + 1 }}" class="text-center">Tidak ada data jadwal yang ditemukan.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
